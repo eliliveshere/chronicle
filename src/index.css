@@ -1,0 +1,65 @@
+:root {
+  --bg-color: #000000;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a3a3a3;
+  --accent-gold: #cfb53b;
+  --accent-faint: rgba(255, 255, 255, 0.1);
+  --font-serif: "Cinzel", serif;
+  --font-sans: "Inter", sans-serif;
+  --card-ratio: 0.625; /* 2.5 : 4 */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow: hidden; /* Prevent body scroll, handle in app */
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input,
+textarea {
+  font-family: var(--font-sans);
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--accent-faint);
+  border-radius: 4px;
+}
+
+:focus {
+  outline: 1px solid var(--accent-gold);
+}
+
+/* Scrollbar styles for the drawer/response area */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #111;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
