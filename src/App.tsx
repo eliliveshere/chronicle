@@ -45,7 +45,7 @@ export default function App() {
 
   // Timer State
   const [isPlayingBg, setIsPlayingBg] = useState(false);
-  const [countdown, setCountdown] = useState(5);
+  // countdown removed as it is now purely visual/CSS driven
 
   // Derived Assets
   const currentStep = QUEST_STEPS[stepIndex];
@@ -53,9 +53,6 @@ export default function App() {
   // Audio Refs
   const ambientRef = useRef<HTMLAudioElement | null>(null);
   const narrationRef = useRef<HTMLAudioElement | null>(null);
-
-  // Timer Ref for cleanup
-  const timerRef = useRef<number | null>(null);
 
   // Force reset audio sources when step changes
   useEffect(() => {
@@ -67,26 +64,13 @@ export default function App() {
     }
   }, [stepIndex]);
 
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
+  // Cleanup timer no longer needed as we rely on audio events
 
   // 1. Play Chronicle Sequence: BG (5s) -> Narration
   const handlePlayChronicle = () => {
     setAudioError('');
     setIsPlayingBg(true);
-    setCountdown(5); // Reset
-
-    // Clear any existing timer
-    if (timerRef.current) clearInterval(timerRef.current);
-
-    // Visual countdown logic 
-    timerRef.current = setInterval(() => {
-      setCountdown(prev => Math.max(0, prev - 1));
-    }, 1000);
+    // Visuals are handled by CSS/SVG animation duration
 
     // Play Ambient (BG Noise) First
     if (ambientRef.current && currentStep.ambient) {
@@ -98,17 +82,14 @@ export default function App() {
       ambientRef.current.play().catch(err => {
         console.error("Ambient play failed", err);
         // Fallback: start narration immediately if BG fails
-        stopTimerAndStartNarration();
+        startNarrationPhase();
       });
     } else {
-      stopTimerAndStartNarration();
+      startNarrationPhase();
     }
   };
 
-  const stopTimerAndStartNarration = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    startNarrationPhase();
-  };
+  // stopTimerAndStartNarration removed, using startNarrationPhase directly
 
   const startNarrationPhase = () => {
     setIsPlayingBg(false);
@@ -130,7 +111,7 @@ export default function App() {
   const handleAmbientEnded = () => {
     // When BG noise finishes, transition to narration
     if (questState === 'A_ART_REVEAL') {
-      stopTimerAndStartNarration();
+      startNarrationPhase();
     }
   };
 
