@@ -1,6 +1,16 @@
 import { useRef, useEffect } from 'react';
 
-const ParticlesBG = () => {
+interface ParticlesBGProps {
+    particleColor?: string;
+    bgStart?: string;
+    bgEnd?: string;
+}
+
+const ParticlesBG = ({
+    particleColor = 'rgba(255, 255, 255, 0.05)',
+    bgStart = '#111',
+    bgEnd = '#000'
+}: ParticlesBGProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -32,12 +42,12 @@ const ParticlesBG = () => {
 
             // Foggy background base
             const gradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width);
-            gradient.addColorStop(0, '#111');
-            gradient.addColorStop(1, '#000');
+            gradient.addColorStop(0, bgStart);
+            gradient.addColorStop(1, bgEnd);
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, width, height);
 
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.fillStyle = particleColor;
 
             particles.forEach(p => {
                 p.x += p.vx;
@@ -68,7 +78,7 @@ const ParticlesBG = () => {
             cancelAnimationFrame(animationFrameId);
             window.removeEventListener('resize', handleResize);
         };
-    }, []);
+    }, [particleColor, bgStart, bgEnd]);
 
     return (
         <canvas
