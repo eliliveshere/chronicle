@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'ONE CARD QUEST',
-        short_name: 'Quest',
+        name: 'Chronicle',
+        short_name: 'Chronicle',
         description: 'A daily mythic card journey.',
         theme_color: '#000000',
         background_color: '#000000',
