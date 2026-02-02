@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import type { OriginData } from './OriginBuilder';
+import { triggerHaptic } from '../../lib/haptics';
 
 interface ConfirmationScreenProps {
     data: OriginData;
@@ -74,7 +75,7 @@ export default function ConfirmationScreen({ data, onConfirm }: ConfirmationScre
             <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={onConfirm}
+                onClick={() => { triggerHaptic(); onConfirm(); }}
                 style={{
                     padding: '1rem 2rem',
                     background: '#cfb53b',

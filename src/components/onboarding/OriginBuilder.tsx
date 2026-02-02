@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { triggerHaptic } from '../../lib/haptics';
 
 export interface OriginData {
     world: string;
@@ -55,8 +56,10 @@ export default function OriginBuilder({ onComplete }: OriginBuilderProps) {
         if (value === 'Custom' || (step === 0 && value === 'custom')) {
             // For custom world/role selection, we might want to show input immediately
             // But for simplicity of this wizard, let's treat "custom" selection as a trigger for the input UI
+            triggerHaptic();
             setCustomInput('');
         } else {
+            triggerHaptic();
             setData(prev => ({ ...prev, [key]: value }));
             // Auto-advance
             if (step < 2) {
@@ -69,6 +72,7 @@ export default function OriginBuilder({ onComplete }: OriginBuilderProps) {
 
     const handleCustomSubmit = () => {
         if (!customInput.trim()) return;
+        triggerHaptic();
         const key = step === 0 ? 'world' : step === 1 ? 'role' : 'opening';
         setData(prev => ({ ...prev, [key]: customInput }));
         setCustomInput('');
@@ -103,6 +107,7 @@ export default function OriginBuilder({ onComplete }: OriginBuilderProps) {
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => {
                                     if (w.id === 'custom') {
+                                        triggerHaptic();
                                         setCustomInput(' '); // Trigger input mode
                                     } else {
                                         handleSelection('world', w.title);
@@ -152,6 +157,7 @@ export default function OriginBuilder({ onComplete }: OriginBuilderProps) {
                                 whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.1)' }}
                                 onClick={() => {
                                     if (r === 'Custom') {
+                                        triggerHaptic();
                                         setCustomInput(' ');
                                     } else {
                                         handleSelection('role', r);
@@ -209,7 +215,7 @@ export default function OriginBuilder({ onComplete }: OriginBuilderProps) {
                         {customInput === '' && (
                             <motion.button
                                 whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.1)' }}
-                                onClick={() => setCustomInput(' ')}
+                                onClick={() => { triggerHaptic(); setCustomInput(' '); }}
                                 style={{ ...cardStyle, borderStyle: 'dashed', opacity: 0.6 }}
                             >
                                 <span style={{ fontFamily: 'Cinzel', fontSize: '0.9rem' }}>Write your own opening...</span>

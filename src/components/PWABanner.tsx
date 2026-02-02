@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { triggerHaptic } from '../lib/haptics';
 
 export default function PWABanner() {
     const [isVisible, setIsVisible] = useState(false);
@@ -51,6 +52,7 @@ export default function PWABanner() {
                         <div
                             onClick={(e) => {
                                 e.stopPropagation();
+                                triggerHaptic();
                                 setShowInstructions(true);
                             }}
                             style={{
@@ -80,6 +82,7 @@ export default function PWABanner() {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
+                                    triggerHaptic();
                                     setIsVisible(false);
                                 }}
                                 style={{
@@ -116,6 +119,7 @@ export default function PWABanner() {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
+                                        triggerHaptic();
                                         setShowInstructions(false);
                                     }}
                                     style={{

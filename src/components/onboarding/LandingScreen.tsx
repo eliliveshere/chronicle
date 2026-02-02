@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import PWABanner from '../PWABanner';
+import { triggerHaptic } from '../../lib/haptics';
 
 interface LandingScreenProps {
     onStart: () => void;
@@ -18,7 +19,10 @@ export default function LandingScreen({ onStart }: LandingScreenProps) {
             color: '#cfb53b',
             cursor: 'pointer'
         }}
-            onClick={onStart}
+            onClick={() => {
+                triggerHaptic();
+                onStart();
+            }}
         >
             <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}

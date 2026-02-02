@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ParticlesBG from './ParticlesBG';
+import { triggerHaptic } from '../lib/haptics';
 
 // Import Assets
 import card1 from '../assets/demo/card1.png';
@@ -17,6 +18,7 @@ import bg1 from '../assets/demo/bg1.mp3';
 import bg2 from '../assets/demo/bg2.mp3';
 import bg3 from '../assets/demo/bg3.mp3';
 import bg4 from '../assets/demo/bg4.mp3';
+import sealfate from '../assets/demo/sealfate.mp3';
 
 // --- DEMO CONTENT CONFIG ---
 const QUEST_STEPS = [
@@ -74,6 +76,7 @@ export default function QuestFlow() {
     // Audio Refs
     const ambientRef = useRef<HTMLAudioElement | null>(null);
     const narrationRef = useRef<HTMLAudioElement | null>(null);
+    const sfxRef = useRef<HTMLAudioElement | null>(null);
 
     // Force reset audio sources when step changes
     useEffect(() => {
@@ -89,6 +92,7 @@ export default function QuestFlow() {
 
     // 1. Play Chronicle Sequence: BG (5s) -> Narration
     const handlePlayChronicle = () => {
+        triggerHaptic();
         setAudioError('');
         setIsPlayingBg(true);
         // Visuals are handled by CSS/SVG animation duration
@@ -151,6 +155,7 @@ export default function QuestFlow() {
     // 2. Replay
     const handleReplay = (e: React.MouseEvent) => {
         e.stopPropagation();
+        triggerHaptic();
         playNarration();
     };
 
@@ -162,12 +167,21 @@ export default function QuestFlow() {
     };
 
     const handleOpenResponse = () => {
+        triggerHaptic();
         setQuestState('D_RESPONSE');
     };
 
     const handleSubmit = () => {
         if (!response.trim()) return;
+        triggerHaptic();
         setIsSealed(true);
+
+        // Play SFX
+        if (sfxRef.current) {
+            sfxRef.current.volume = 0.8;
+            sfxRef.current.currentTime = 0;
+            sfxRef.current.play().catch(e => console.error("SFX play failed", e));
+        }
 
         // Stop Audio
         if (ambientRef.current) {
@@ -218,6 +232,7 @@ export default function QuestFlow() {
                 playsInline
                 onEnded={handleNarrationEnded}
             />
+            <audio ref={sfxRef} src={sealfate} preload="auto" />
 
             <ParticlesBG />
 
