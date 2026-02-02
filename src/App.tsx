@@ -1,42 +1,118 @@
-import { useRef, useState } from 'react'; // useEffect removed if not used, but cleaned up
+import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ParticlesBG from './components/ParticlesBG';
 
-// Hardcoded Assets
-const ASSETS = {
-  image: '/20260123_1203_Image Generation_simple_compose_01kfmg9ekqexn886868e4pmcqf.png',
-  narration: '/ElevenLabs_2026-01-23T03_57_42_Myrrdin - Wise and Magical Narrator_pvc_sp100_s0_sb100_v3.mp3',
-  ambient: '/Subtle_cavern_ambien_#1-1769140835320.mp3'
-};
-
-const PROMPT_TEXT = "You wake beneath a blackened sky,\nyour name already forgotten by the world.\n\nA symbol burns faintly on your palm—\nproof of a vow you do not remember making.\n\nIn the distance,\nsomething ancient has noticed you.";
+// --- DEMO CONTENT CONFIG ---
+const QUEST_STEPS = [
+  {
+    id: 1,
+    image: '/card1.png',
+    narration: '/voice1.mp3',
+    ambient: '/bg1.mp3',
+    prompt: "You wake beneath a blackened sky,\nyour name already forgotten by the world.\n\nA symbol burns faintly on your palm—\nproof of a vow you do not remember making.\n\nIn the distance,\nsomething ancient has noticed you."
+  },
+  {
+    id: 2,
+    image: '/card2.png',
+    narration: '/voice2.mp3',
+    ambient: '/bg2.mp3',
+    prompt: "Your grip tightens around the hilt as the darkness answers at last.\n\nA massive shape stirs, its breath slow and heavy, rolling through the cavern like distant thunder.\nScales catch the faintest trace of light.\n\nYou are no longer alone."
+  },
+  {
+    id: 3,
+    image: '/card3.png',
+    narration: '/voice3.mp3',
+    ambient: '/bg3.mp3',
+    prompt: "Your challenge breaks the silence — and the silence breaks in return.\n\nFlame erupts from the darkness, a roaring tide of heat and fury.\nYou raise your shield as fire crashes against it, the force driving you to one knee.\n\nThe mark on your palm burns white-hot."
+  },
+  {
+    id: 4,
+    image: '/card4.png',
+    narration: '/voice4.mp3',
+    ambient: '/bg4.mp3',
+    prompt: "You stand your ground as power surges through the symbol you bear.\n\nBlue light tears from your grasp, meeting the dragon’s fire head-on.\nMagic and flame collide, shaking the cavern in a clash older than memory.\n\nThe world seems to hold its breath."
+  }
+];
 
 type QuestState = 'A_ART_REVEAL' | 'B_NARRATION' | 'C_CHOICE_PROMPT' | 'D_RESPONSE';
 
 export default function App() {
+  const [stepIndex, setStepIndex] = useState(0);
   const [questState, setQuestState] = useState<QuestState>('A_ART_REVEAL');
   const [response, setResponse] = useState('');
   const [isSealed, setIsSealed] = useState(false);
   const [audioError, setAudioError] = useState('');
 
-  // Audio Refs (standard DOM elements)
+  // Timer State
+  const [isPlayingBg, setIsPlayingBg] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+
+  // Derived Assets
+  const currentStep = QUEST_STEPS[stepIndex];
+
+  // Audio Refs
   const ambientRef = useRef<HTMLAudioElement | null>(null);
   const narrationRef = useRef<HTMLAudioElement | null>(null);
 
-  // 1. Play Chronicle (Ambient Loop + Narration Auto-Play)
-  const handlePlayChronicle = () => {
-    setQuestState('B_NARRATION'); // Advance UI
+  // Timer Ref for cleanup
+  const timerRef = useRef<number | null>(null);
 
-    // Start Ambient
+  // Force reset audio sources when step changes
+  useEffect(() => {
     if (ambientRef.current) {
-      ambientRef.current.volume = 0.2;
+      ambientRef.current.load();
+    }
+    if (narrationRef.current) {
+      narrationRef.current.load();
+    }
+  }, [stepIndex]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  // 1. Play Chronicle Sequence: BG (5s) -> Narration
+  const handlePlayChronicle = () => {
+    setAudioError('');
+    setIsPlayingBg(true);
+    setCountdown(5); // Reset
+
+    // Clear any existing timer
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    // Visual countdown logic 
+    timerRef.current = setInterval(() => {
+      setCountdown(prev => Math.max(0, prev - 1));
+    }, 1000);
+
+    // Play Ambient (BG Noise) First
+    if (ambientRef.current && currentStep.ambient) {
+      // Ensure it is not looping for this sequence
+      ambientRef.current.loop = false;
+      ambientRef.current.volume = 0.5; // Bump volume for FX
+      ambientRef.current.currentTime = 0;
+
       ambientRef.current.play().catch(err => {
         console.error("Ambient play failed", err);
-        setAudioError("Check audio permissions");
+        // Fallback: start narration immediately if BG fails
+        stopTimerAndStartNarration();
       });
+    } else {
+      stopTimerAndStartNarration();
     }
+  };
 
-    // Start Narration Automatically
+  const stopTimerAndStartNarration = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    startNarrationPhase();
+  };
+
+  const startNarrationPhase = () => {
+    setIsPlayingBg(false);
+    setQuestState('B_NARRATION');
     playNarration();
   };
 
@@ -51,15 +127,21 @@ export default function App() {
     }
   };
 
-  // 2. Replay (Manual Trigger)
+  const handleAmbientEnded = () => {
+    // When BG noise finishes, transition to narration
+    if (questState === 'A_ART_REVEAL') {
+      stopTimerAndStartNarration();
+    }
+  };
+
+  // 2. Replay
   const handleReplay = (e: React.MouseEvent) => {
     e.stopPropagation();
     playNarration();
   };
 
-  // 3. Handle End of Narration to Advance Flow
+  // 3. Narration End
   const handleNarrationEnded = () => {
-    // Reveal the choice prompt when narration finishes
     if (questState === 'B_NARRATION') {
       setQuestState('C_CHOICE_PROMPT');
     }
@@ -73,7 +155,7 @@ export default function App() {
     if (!response.trim()) return;
     setIsSealed(true);
 
-    // Stop all audio permanently
+    // Stop Audio
     if (ambientRef.current) {
       ambientRef.current.pause();
       ambientRef.current.currentTime = 0;
@@ -82,20 +164,42 @@ export default function App() {
       narrationRef.current.pause();
       narrationRef.current.currentTime = 0;
     }
+
+    // Demo Mode Logic: Auto-advance after delay
+    if (stepIndex < QUEST_STEPS.length - 1) {
+      setTimeout(() => {
+        handleNextStep();
+      }, 3000); // 3 second pause to read "Fate Sealed"
+    }
   };
+
+  const handleNextStep = () => {
+    // Advance to next step
+    setStepIndex(prev => prev + 1);
+
+    // Reset State
+    setQuestState('A_ART_REVEAL');
+    setResponse('');
+    setIsSealed(false);
+    setIsPlayingBg(false);
+  };
+
+  // Check if we are finished with the demo
+  const isDemoComplete = isSealed && stepIndex === QUEST_STEPS.length - 1;
 
   return (
     <>
       <audio
         ref={ambientRef}
-        src={ASSETS.ambient}
-        loop
+        src={currentStep.ambient}
+        loop={false} // Managed by logic, but default to false for 1-shot BG
         preload="auto"
         playsInline
+        onEnded={handleAmbientEnded}
       />
       <audio
         ref={narrationRef}
-        src={ASSETS.narration}
+        src={currentStep.narration}
         preload="auto"
         playsInline
         onEnded={handleNarrationEnded}
@@ -103,7 +207,7 @@ export default function App() {
 
       <ParticlesBG />
 
-      {/* GLOBAL CONTAINER: FIXED, NO SCROLL */}
+      {/* GLOBAL CONTAINER */}
       <div style={{
         position: 'fixed',
         inset: 0,
@@ -118,22 +222,30 @@ export default function App() {
           inset: 0,
           zIndex: 0
         }}>
-          <img
-            src={ASSETS.image}
-            alt="Quest Background"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              opacity: 0.8
-            }}
-          />
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentStep.image}
+              src={currentStep.image}
+              alt="Quest Background"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.8 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1 }}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                position: 'absolute',
+                inset: 0
+              }}
+            />
+          </AnimatePresence>
           {/* Base Vignette */}
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle, transparent 40%, #000 100%)' }} />
         </div>
 
 
-        {/* 2. OVERLAYS (Z-INDEX 10+) */}
+        {/* 2. OVERLAYS */}
         <AnimatePresence mode="wait">
 
           {/* STATE A: ART REVEAL BUTTON */}
@@ -154,25 +266,50 @@ export default function App() {
               }}
             >
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                <button
-                  onClick={handlePlayChronicle}
-                  style={{
-                    padding: '1rem 2rem',
-                    background: 'rgba(0,0,0,0.6)',
-                    border: '1px solid #cfb53b',
-                    color: '#cfb53b',
-                    fontFamily: 'Cinzel, serif',
-                    fontSize: '1rem',
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
-                    backdropFilter: 'blur(4px)',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    boxShadow: '0 0 20px rgba(207, 181, 59, 0.2)'
-                  }}
-                >
-                  Play Chronicle
-                </button>
+                {!isPlayingBg ? (
+                  <button
+                    onClick={handlePlayChronicle}
+                    style={{
+                      padding: '1rem 2rem',
+                      background: 'rgba(0,0,0,0.6)',
+                      border: '1px solid #cfb53b',
+                      color: '#cfb53b',
+                      fontFamily: 'Cinzel, serif',
+                      fontSize: '1rem',
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      backdropFilter: 'blur(4px)',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      boxShadow: '0 0 20px rgba(207, 181, 59, 0.2)'
+                    }}
+                    disabled={isDemoComplete}
+                  >
+                    {isDemoComplete ? "Demo Complete" : "Play Chronicle"}
+                  </button>
+                ) : (
+                  <div style={{ position: 'relative', width: '50px', height: '50px' }}>
+                    <svg width="50" height="50" viewBox="0 0 50 50" style={{ transform: 'rotate(-90deg)' }}>
+                      {/* Track */}
+                      <circle
+                        cx="25" cy="25" r="22"
+                        stroke="rgba(207, 181, 59, 0.2)"
+                        strokeWidth="3"
+                        fill="transparent"
+                      />
+                      {/* Progress Fill */}
+                      <motion.circle
+                        cx="25" cy="25" r="22"
+                        stroke="#cfb53b"
+                        strokeWidth="3"
+                        fill="transparent"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 5, ease: "linear" }}
+                      />
+                    </svg>
+                  </div>
+                )}
                 {audioError && <span style={{ color: '#ff6b6b', fontSize: '0.8rem', fontFamily: 'Inter' }}>{audioError}</span>}
               </div>
             </motion.div>
@@ -222,21 +359,26 @@ export default function App() {
                   display: 'block',
                   marginBottom: '1rem'
                 }}>
-                  ONE CARD QUEST
+                  DEMO • PART {currentStep.id}/3
                 </span>
 
-                <p style={{
-                  fontFamily: 'Cinzel, serif',
-                  fontSize: '1rem',
-                  lineHeight: '1.6',
-                  color: '#e0e0e0',
-                  textShadow: '0 2px 10px rgba(0,0,0,1)',
-                  whiteSpace: 'pre-wrap',
-                  maxWidth: '32ch',
-                  margin: '0 auto'
-                }}>
-                  {PROMPT_TEXT}
-                </p>
+                <motion.p
+                  key={currentStep.prompt} // Animate text change
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  style={{
+                    fontFamily: 'Cinzel, serif',
+                    fontSize: '1rem',
+                    lineHeight: '1.6',
+                    color: '#e0e0e0',
+                    textShadow: '0 2px 10px rgba(0,0,0,1)',
+                    whiteSpace: 'pre-wrap',
+                    maxWidth: '32ch',
+                    margin: '0 auto'
+                  }}
+                >
+                  {currentStep.prompt}
+                </motion.p>
 
                 {/* Replay Control */}
                 <button
@@ -340,9 +482,11 @@ export default function App() {
                     "{response}"
                   </div>
                   <h3 style={{ fontFamily: 'Cinzel, serif', color: '#cfb53b', marginBottom: '0.5rem' }}>
-                    FATE SEALED
+                    {isDemoComplete ? "JOURNEY COMPLETE" : "FATE SEALED"}
                   </h3>
-                  <p style={{ color: '#555', fontSize: '0.9rem' }}>Return tomorrow.</p>
+                  <p style={{ color: '#555', fontSize: '0.9rem' }}>
+                    {isDemoComplete ? "Thank you for playing." : "The threads of fate realign..."}
+                  </p>
                 </motion.div>
               ) : (
                 <>
