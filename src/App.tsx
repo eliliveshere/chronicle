@@ -2,34 +2,50 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ParticlesBG from './components/ParticlesBG';
 
+// Import Assets
+import card1 from './assets/demo/card1.png';
+import card2 from './assets/demo/card2.png';
+import card3 from './assets/demo/card3.png';
+import card4 from './assets/demo/card4.png';
+
+import voice1 from './assets/demo/voice1.mp3';
+import voice2 from './assets/demo/voice2.mp3';
+import voice3 from './assets/demo/voice3.mp3';
+import voice4 from './assets/demo/voice4.mp3';
+
+import bg1 from './assets/demo/bg1.mp3';
+import bg2 from './assets/demo/bg2.mp3';
+import bg3 from './assets/demo/bg3.mp3';
+import bg4 from './assets/demo/bg4.mp3';
+
 // --- DEMO CONTENT CONFIG ---
 const QUEST_STEPS = [
   {
     id: 1,
-    image: '/card1.png',
-    narration: '/voice1.mp3',
-    ambient: '/bg1.mp3',
+    image: card1,
+    narration: voice1,
+    ambient: bg1,
     prompt: "You wake beneath a blackened sky,\nyour name already forgotten by the world.\n\nA symbol burns faintly on your palm—\nproof of a vow you do not remember making.\n\nIn the distance,\nsomething ancient has noticed you."
   },
   {
     id: 2,
-    image: '/card2.png',
-    narration: '/voice2.mp3',
-    ambient: '/bg2.mp3',
+    image: card2,
+    narration: voice2,
+    ambient: bg2,
     prompt: "Your grip tightens around the hilt as the darkness answers at last.\n\nA massive shape stirs, its breath slow and heavy, rolling through the cavern like distant thunder.\nScales catch the faintest trace of light.\n\nYou are no longer alone."
   },
   {
     id: 3,
-    image: '/card3.png',
-    narration: '/voice3.mp3',
-    ambient: '/bg3.mp3',
+    image: card3,
+    narration: voice3,
+    ambient: bg3,
     prompt: "Your challenge breaks the silence — and the silence breaks in return.\n\nFlame erupts from the darkness, a roaring tide of heat and fury.\nYou raise your shield as fire crashes against it, the force driving you to one knee.\n\nThe mark on your palm burns white-hot."
   },
   {
     id: 4,
-    image: '/card4.png',
-    narration: '/voice4.mp3',
-    ambient: '/bg4.mp3',
+    image: card4,
+    narration: voice4,
+    ambient: bg4,
     prompt: "You stand your ground as power surges through the symbol you bear.\n\nBlue light tears from your grasp, meeting the dragon’s fire head-on.\nMagic and flame collide, shaking the cavern in a clash older than memory.\n\nThe world seems to hold its breath."
   }
 ];
