@@ -22,6 +22,7 @@ import bg4 from '../assets/demo/bg4.mp3';
 const QUEST_STEPS = [
     {
         id: 1,
+        title: "THE AWAKENED ONE",
         image: card1,
         narration: voice1,
         ambient: bg1,
@@ -29,6 +30,7 @@ const QUEST_STEPS = [
     },
     {
         id: 2,
+        title: "THE SHAPE IN THE DARK",
         image: card2,
         narration: voice2,
         ambient: bg2,
@@ -36,6 +38,7 @@ const QUEST_STEPS = [
     },
     {
         id: 3,
+        title: "FIRE ANSWERS WORDS",
         image: card3,
         narration: voice3,
         ambient: bg3,
@@ -43,6 +46,7 @@ const QUEST_STEPS = [
     },
     {
         id: 4,
+        title: "WILL AGAINST FLAME",
         image: card4,
         narration: voice4,
         ambient: bg4,
@@ -58,6 +62,7 @@ export default function QuestFlow() {
     const [response, setResponse] = useState('');
     const [isSealed, setIsSealed] = useState(false);
     const [audioError, setAudioError] = useState('');
+    const [bgDuration, setBgDuration] = useState(5); // Default fallback
 
     // Timer State
     const [isPlayingBg, setIsPlayingBg] = useState(false);
@@ -94,6 +99,18 @@ export default function QuestFlow() {
             ambientRef.current.loop = false;
             ambientRef.current.volume = 0.5; // Bump volume for FX
             ambientRef.current.currentTime = 0;
+
+            // Wait for metadata to get valid duration if possible, or force play
+            if (ambientRef.current.duration && !isNaN(ambientRef.current.duration) && ambientRef.current.duration !== Infinity) {
+                setBgDuration(ambientRef.current.duration);
+            } else {
+                // Fallback or attempt to read once loaded
+                ambientRef.current.onloadedmetadata = () => {
+                    if (ambientRef.current && ambientRef.current.duration) {
+                        setBgDuration(ambientRef.current.duration);
+                    }
+                };
+            }
 
             ambientRef.current.play().catch(err => {
                 console.error("Ambient play failed", err);
@@ -302,7 +319,7 @@ export default function QuestFlow() {
                                                 fill="transparent"
                                                 initial={{ pathLength: 0 }}
                                                 animate={{ pathLength: 1 }}
-                                                transition={{ duration: 5, ease: "linear" }}
+                                                transition={{ duration: bgDuration, ease: "linear" }}
                                             />
                                         </svg>
                                     </div>
@@ -354,9 +371,10 @@ export default function QuestFlow() {
                                     fontSize: '0.75rem',
                                     letterSpacing: '0.2em',
                                     display: 'block',
-                                    marginBottom: '1rem'
+                                    marginBottom: '1rem',
+                                    textTransform: 'uppercase'
                                 }}>
-                                    DEMO • PART {currentStep.id}/3
+                                    {currentStep.title}
                                 </span>
 
                                 <motion.p

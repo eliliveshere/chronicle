@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import PWABanner from '../PWABanner';
 
 interface LandingScreenProps {
     onStart: () => void;
@@ -51,6 +52,8 @@ export default function LandingScreen({ onStart }: LandingScreenProps) {
             >
                 Click to Start
             </motion.p>
+
+            <PWABanner />
         </div>
     );
 }

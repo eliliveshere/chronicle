@@ -7,10 +7,10 @@ interface IntroSequenceProps {
 }
 
 const TEXT_SEQUENCE = [
-    { text: "Welcome… to your Chronicle.", delay: 1000, duration: 3500 },
-    { text: "What happens next…", delay: 5000, duration: 3000 },
-    { text: "Is up to you.", delay: 8500, duration: 3000 },
-    { text: "Each day marks one step forward in your story.", delay: 12000, duration: 5000 }
+    { text: "Welcome… to your Chronicle.", delay: 900, duration: 3150 },
+    { text: "What happens next…", delay: 4500, duration: 2700 },
+    { text: "Is up to you.", delay: 7650, duration: 2700 },
+    { text: "Each day marks one step forward in your story.", delay: 10800, duration: 4500 }
 ];
 
 export default function IntroSequence({ onComplete }: IntroSequenceProps) {
@@ -31,7 +31,7 @@ export default function IntroSequence({ onComplete }: IntroSequenceProps) {
         // Auto-complete after sequence
         const endTimer = setTimeout(() => {
             onComplete();
-        }, 18000);
+        }, 16200);
         timers.push(endTimer);
 
         return () => timers.forEach(t => clearTimeout(t));
