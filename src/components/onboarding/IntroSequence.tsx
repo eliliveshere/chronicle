@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ParticlesBG from '../ParticlesBG';
-import introAudio from '../../assets/demo/intro-withmusic.mp3';
 
 interface IntroSequenceProps {
     onComplete: () => void;
@@ -16,22 +15,9 @@ const TEXT_SEQUENCE = [
 
 export default function IntroSequence({ onComplete }: IntroSequenceProps) {
     const [currentLine, setCurrentLine] = useState<number>(-1);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
 
     // Auto-start sequence
     useEffect(() => {
-        // Attempt to play audio
-        const playAudio = async () => {
-            if (audioRef.current) {
-                try {
-                    await audioRef.current.play();
-                } catch (e) {
-                    console.log("Autoplay blocked, user interaction required later");
-                }
-            }
-        };
-        playAudio();
-
         // Sequence timers
         const timers: number[] = [];
 
@@ -69,8 +55,6 @@ export default function IntroSequence({ onComplete }: IntroSequenceProps) {
             boxSizing: 'border-box'
         }}>
             <ParticlesBG particleColor="rgba(207, 181, 59, 0.4)" bgStart="#050200" bgEnd="#000" />
-
-            <audio ref={audioRef} src={introAudio} />
 
             <div style={{ maxWidth: '600px', width: '100%', minHeight: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <AnimatePresence mode="wait">

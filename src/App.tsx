@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import introAudio from './assets/demo/intro-withmusic.mp3';
 
 // Screens
 import LandingScreen from './components/onboarding/LandingScreen';
@@ -15,9 +16,13 @@ type AppState = 'LANDING' | 'INTRO' | 'HOME' | 'BUILDER' | 'CONFIRMATION' | 'QUE
 export default function App() {
   const [appState, setAppState] = useState<AppState>('LANDING');
   const [originData, setOriginData] = useState<OriginData | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleLandingStart = () => {
     setAppState('INTRO');
+    if (audioRef.current) {
+      audioRef.current.play().catch(e => console.log("Audio play failed", e));
+    }
   };
 
   const handleIntroComplete = () => {
@@ -39,6 +44,7 @@ export default function App() {
 
   return (
     <div className="app-container" style={{ overflow: 'hidden', height: '100vh', width: '100vw', background: '#000' }}>
+      <audio ref={audioRef} src={introAudio} />
       <AnimatePresence mode="wait">
 
         {appState === 'LANDING' && (
