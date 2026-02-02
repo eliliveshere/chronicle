@@ -85,8 +85,16 @@ export default function OriginBuilder({ onComplete }: OriginBuilderProps) {
         switch (step) {
             case 0: // World
                 return (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', maxWidth: '400px' }}>
-                        <h2 style={{ fontFamily: 'Cinzel', textAlign: 'center', marginBottom: '2rem', color: '#cfb53b' }}>What kind of world does your story begin in?</h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', width: '100%' }}>
+                        <h2 style={{
+                            fontFamily: 'Cinzel',
+                            textAlign: 'center',
+                            marginBottom: '1.5rem',
+                            color: '#cfb53b',
+                            fontSize: 'clamp(1.2rem, 5vw, 1.5rem)',
+                            lineHeight: '1.4',
+                            padding: '0 1rem'
+                        }}>What kind of world does your story begin in?</h2>
 
                         {customInput === '' && !data.world && WORLDS.map(w => (
                             <motion.button
@@ -102,8 +110,8 @@ export default function OriginBuilder({ onComplete }: OriginBuilderProps) {
                                 }}
                                 style={cardStyle}
                             >
-                                <span style={{ fontFamily: 'Cinzel', fontSize: '1.2rem', display: 'block' }}>{w.title}</span>
-                                <span style={{ fontSize: '0.8rem', color: '#888', marginTop: '0.5rem', display: 'block' }}>{w.desc}</span>
+                                <span style={{ fontFamily: 'Cinzel', fontSize: '1.1rem', display: 'block' }}>{w.title}</span>
+                                <span style={{ fontSize: '0.8rem', color: '#888', marginTop: '0.25rem', display: 'block', lineHeight: '1.4' }}>{w.desc}</span>
                             </motion.button>
                         ))}
 
@@ -127,8 +135,16 @@ export default function OriginBuilder({ onComplete }: OriginBuilderProps) {
                 const roles = ROLES[worldKey] || ROLES['custom'];
 
                 return (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', maxWidth: '400px' }}>
-                        <h2 style={{ fontFamily: 'Cinzel', textAlign: 'center', marginBottom: '2rem', color: '#cfb53b' }}>Who are you at the beginning of this story?</h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', width: '100%' }}>
+                        <h2 style={{
+                            fontFamily: 'Cinzel',
+                            textAlign: 'center',
+                            marginBottom: '1.5rem',
+                            color: '#cfb53b',
+                            fontSize: 'clamp(1.2rem, 5vw, 1.5rem)',
+                            lineHeight: '1.4',
+                            padding: '0 1rem'
+                        }}>Who are you at the beginning of this story?</h2>
 
                         {customInput === '' && roles.map(r => (
                             <motion.button
@@ -166,8 +182,18 @@ export default function OriginBuilder({ onComplete }: OriginBuilderProps) {
                 const openings = OPENINGS[wKey] || OPENINGS['medieval']; // fallback
 
                 return (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', maxWidth: '400px' }}>
-                        <h2 style={{ fontFamily: 'Cinzel', textAlign: 'center', marginBottom: '2rem', color: '#cfb53b' }}>How does your story begin?</h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', width: '100%' }}>
+                        <h2 style={{
+                            fontFamily: 'Cinzel',
+                            textAlign: 'center',
+                            marginBottom: '1.5rem',
+                            color: '#cfb53b',
+                            fontSize: 'clamp(1.2rem, 5vw, 1.5rem)',
+                            lineHeight: '1.4',
+                            padding: '0 1rem'
+                        }}>
+                            How does your story begin?
+                        </h2>
 
                         {customInput === '' && openings.map((o, idx) => (
                             <motion.button
@@ -221,9 +247,11 @@ export default function OriginBuilder({ onComplete }: OriginBuilderProps) {
                 justifyContent: 'center',
                 minHeight: '100vh',
                 width: '100vw',
-                padding: '2rem',
+                padding: '1rem',
+                boxSizing: 'border-box',
                 background: '#000',
-                color: '#fff'
+                color: '#fff',
+                overflowX: 'hidden'
             }}
         >
             <AnimatePresence mode="wait">
@@ -233,7 +261,12 @@ export default function OriginBuilder({ onComplete }: OriginBuilderProps) {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.5 }}
-                    style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+                    style={{
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        maxWidth: '500px'
+                    }}
                 >
                     {renderStep()}
                 </motion.div>
@@ -244,7 +277,7 @@ export default function OriginBuilder({ onComplete }: OriginBuilderProps) {
 
 // STYLES
 const cardStyle: React.CSSProperties = {
-    padding: '1.5rem',
+    padding: '1rem',
     background: '#111',
     border: '1px solid #333',
     borderRadius: '4px',
@@ -252,7 +285,8 @@ const cardStyle: React.CSSProperties = {
     cursor: 'pointer',
     width: '100%',
     color: '#eee',
-    transition: 'border-color 0.2s'
+    transition: 'border-color 0.2s',
+    marginBottom: '0.5rem' // Add spacing via margin instead of flex gap for safety
 };
 
 const inputStyle: React.CSSProperties = {
@@ -263,7 +297,8 @@ const inputStyle: React.CSSProperties = {
     fontFamily: 'Inter',
     fontSize: '1rem',
     outline: 'none',
-    borderRadius: '4px'
+    borderRadius: '4px',
+    width: '100%'
 };
 
 const btnStyle: React.CSSProperties = {
@@ -274,5 +309,6 @@ const btnStyle: React.CSSProperties = {
     fontFamily: 'Cinzel',
     fontWeight: 'bold',
     cursor: 'pointer',
-    borderRadius: '4px'
+    borderRadius: '4px',
+    width: '100%'
 };
